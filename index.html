@@ -353,37 +353,62 @@ ol.steps li b{font-family:var(--mono);font-size:14.2px;letter-spacing:.12em;text
   /* when the grocery list is open, print only that */
   body.planner-open > *:not(.planner){display:none!important}
   .planner{position:static;overflow:visible;padding:0}
-  .planbody{padding-bottom:0}
-  .writein .rules span:last-child{border-bottom:0}
-  .plantop{background:#fff;color:#000;border-bottom:3px solid #000;padding:0 0 12px}
-  .plantop h2{color:#000} .plantop .eyebrow{color:#555} .plantop .acts{display:none}
-  .forweek{background:#F7F3E6;border:1px solid #CCC}
-  .dupnote{background:#F2F8F4;border-left:4px solid #12A566;color:#0B7A4B}
-  .aisle li{cursor:auto}
-  .addrow,.storebar{display:none!important}
-  .aisle .nm a{border-bottom:0;color:#000}
+  .planbody{padding:0}
+  .planner .wrap{max-width:none;padding:0}
+
+  /* compact header */
+  .plantop{background:#fff;color:#000;border-bottom:2px solid #000;padding:0 0 6pt;margin-bottom:10pt}
+  .plantop .wrap{display:block}
+  .plantop h2{color:#000;font-size:17pt;letter-spacing:-.01em;margin:0}
+  .plantop .eyebrow{color:#444;font-size:8pt;letter-spacing:.14em;margin:0 0 2pt}
+  .plantop .acts,.addrow,.storebar{display:none!important}
+
+  /* the week, on one tight line */
+  .forweek{background:none;border:0;border-bottom:1px solid #BBB;border-radius:0;
+    padding:0 0 6pt;margin:0 0 8pt}
+  .forweek h3{font-size:7.5pt;letter-spacing:.14em;color:#555;margin:0 0 3pt}
+  .forweek ol{columns:2;column-gap:24pt;padding-left:14pt;margin:0}
+  .forweek li{font-size:9pt;margin:0 0 1pt;break-inside:avoid}
+  .forweek li span{font-size:8pt;color:#666}
+  .dupnote{background:none;border:0;border-left:2pt solid #999;border-radius:0;
+    padding:1pt 0 1pt 7pt;margin:0 0 7pt;font-size:8pt;color:#333}
+
+  /* the list itself — two columns, one line per item */
+  .aisles{columns:2;column-gap:26pt;column-fill:auto;break-inside:auto;orphans:2;widows:2}
+  .aisle{margin:0 0 8pt;break-inside:auto;display:block}
+  .aisle h3{font-size:8pt;letter-spacing:.14em;border-bottom:1.5pt solid #000;
+    padding-bottom:2pt;margin:0 0 2pt;break-after:avoid}
+  .aisle li{padding:1.7pt 0;border-bottom:1px dotted #CCC;break-inside:avoid;
+    align-items:baseline;gap:5pt;cursor:auto}
+  .aisle .box{width:9pt;height:9pt;border:1pt solid #666;border-radius:1.5pt;margin-top:1pt}
+  .aisle .q{font-size:9pt;color:#000;font-weight:500}
+  .aisle .nm{font-size:9pt;line-height:1.2;color:#000}
+  .aisle .nm a{border-bottom:0;color:#000;text-decoration:none}
   .aisle .nm a::after{content:"" !important}
-  .extras{background:#F9F4E6;border:1px solid #CFC5A8}
+  .aisle .from{display:none}
+  .aisle .badge{background:none;color:#555;border:0;font-size:7.5pt;padding:0 0 0 4pt;
+    margin:0;font-weight:400}
+  .aisle .badge::before{content:"×"}
+
+  /* your own additions */
+  .extras{background:none;border:0;border-top:1.5pt solid #000;border-radius:0;
+    padding:7pt 0 0;margin:12pt 0 0;break-inside:avoid}
+  .extras h3{font-size:8pt;letter-spacing:.14em;color:#000;margin:0 0 4pt}
+  .extras p.hint{display:none}
+  .extras ul{columns:2;column-gap:26pt;margin:0}
+  .extras ul li{font-size:9pt;padding:1.7pt 0;border-bottom:1px dotted #CCC}
+  .extras ul li .box{width:9pt;height:9pt;border:1pt solid #666}
   .extras ul li .x{display:none}
-  .writein{margin-top:20px}
-  .writein h3{break-after:avoid}
-  .writein .rules{columns:2}
-  .writein .rules span{height:32px;border-bottom:1px solid #AAA}
-  .aisle .nm a{color:inherit;text-decoration:none;border-bottom:1.5px dotted var(--rule)}
-.aisle .nm a:hover{color:var(--tangerine-dk);border-bottom-color:var(--tangerine)}
-.aisle .nm a::after{content:"↗";font-size:12px;color:var(--ink-faint);margin-left:5px;
-  vertical-align:super}
-.storebar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 26px;
-  background:var(--panel);border-radius:14px;padding:14px 18px}
-.storebar span.lab{font-family:var(--mono);font-size:13px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--tangerine-dk)}
-.storebar button{font-family:var(--mono);font-size:13.6px;letter-spacing:.09em;
-  text-transform:uppercase;padding:9px 14px;border:2px solid #E6D2A0;background:#FFF;
-  border-radius:999px;cursor:pointer;color:var(--ink-soft)}
-.storebar button[aria-pressed="true"]{background:var(--grass);border-color:var(--grass);color:#FFF}
-.storebar small{flex:1 0 100%;font-size:15.9px;color:var(--ink-soft);line-height:1.5}
-.aisle .badge{background:#EEE;color:#333;border:1px solid #BBB}
-  @page{margin:14mm}
+
+  .writein{margin-top:12pt;break-inside:auto}
+  .writein h3{font-size:8pt;letter-spacing:.14em;border-bottom:1.5pt solid #000;
+    padding-bottom:2pt;margin:0;break-after:avoid;break-inside:avoid}
+  .writein .rules{columns:2;column-gap:26pt;padding-top:2pt;column-fill:auto;
+    break-before:avoid}
+  .writein .rules span{height:17pt;border-bottom:1px dotted #AAA;break-inside:avoid}
+  .writein .rules span:last-child{border-bottom:1px dotted #AAA}
+
+  @page{margin:12mm 11mm}
 }
 </style></head><body><header class="cover"><div class="wrap"><div>
 <p class="eyebrow">The Keith household · Dinner, solved</p>
@@ -596,7 +621,7 @@ function openPlanner(){
     var list=byAisle[a].sort(function(x,y){return x.label.localeCompare(y.label)});
     html += '<section class="aisle"><h3>'+esc(a)+'</h3><ul>';
     list.forEach(function(it){
-      html += '<li><span class="box"></span>'
+      html += '<li class="'+(it.recipes.length>1?'multi':'')+'"><span class="box"></span>'
            +  (it.qty?'<span class="q">'+esc(it.qty)+'</span>':'')
            +  '<span class="nm"><a href="'+esc(STORES[store].url(searchTerm(it.label,it.key)))
            +  '" target="_blank" rel="noopener">'+esc(it.label)+'</a>'
