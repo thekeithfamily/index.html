@@ -1183,6 +1183,87 @@ function restoreScrollLock(){
 }
 window.addEventListener('beforeprint',releaseScrollLock);
 window.addEventListener('afterprint',restoreScrollLock);
+
+/* ---- Save as PDF, the reliable way ----
+   Printing the live page means printing a fixed-position full-screen overlay
+   with a scroll lock and a tuned 3-column flow. Chrome's print dialog and
+   Safari both choke on some part of that and hand back a blank page. So don't
+   print the page at all: build a plain standalone document containing only the
+   list, drop it in a hidden iframe, and print that. No overlay, no scroll lock,
+   no fixed positioning -- nothing left to go wrong. */
+function buildPrintDoc(){
+  var host=document.getElementById('planbody');
+  var aisles=host && host.querySelector('.aisles');
+  if(!aisles) return null;
+  var week=host.querySelector('.forweek');
+  var count=(document.getElementById('planCount')||{textContent:''}).textContent;
+  var css='@page{margin:14mm}'
+   +'*{box-sizing:border-box}'
+   +'body{font:11pt/1.4 Georgia,"Times New Roman",serif;color:#000;margin:0}'
+   +'h1{font-size:19pt;margin:0 0 2pt;letter-spacing:-.01em}'
+   +'.sub{font:8.5pt/1.3 monospace;letter-spacing:.12em;text-transform:uppercase;'
+   +'color:#555;margin:0 0 9pt;padding-bottom:7pt;border-bottom:1.5pt solid #000}'
+   +'.week{margin:0 0 9pt;padding-bottom:7pt;border-bottom:.5pt solid #bbb}'
+   +'.week h3{font:7.5pt monospace;letter-spacing:.14em;text-transform:uppercase;'
+   +'color:#555;margin:0 0 3pt}'
+   +'.week ol{columns:3;column-gap:16pt;margin:0;padding-left:13pt}'
+   +'.week li{font-size:9pt;margin:0 0 1pt;break-inside:avoid}'
+   +'.week li span{font-size:8pt;color:#666}'
+   +'.cols{columns:3;column-gap:16pt}'
+   +'section{break-inside:avoid;margin:0 0 8pt}'
+   +'section h3{font:7.5pt monospace;letter-spacing:.14em;text-transform:uppercase;'
+   +'color:#555;margin:0 0 3pt;border-bottom:.5pt solid #ccc;padding-bottom:2pt}'
+   +'ul{list-style:none;margin:0;padding:0}'
+   +'li{font-size:9.5pt;margin:0 0 2.5pt;padding-left:13pt;position:relative;break-inside:avoid}'
+   +'li:before{content:"";position:absolute;left:0;top:2.5pt;width:7pt;height:7pt;'
+   +'border:.75pt solid #444}'
+   +'.q{font-weight:bold;margin-right:4pt}'
+   +'a{color:#000;text-decoration:none}'
+   +'.from,.badge{display:none}'
+   +'.own{color:#777}'
+   +'.ownbadge{font:7pt monospace;letter-spacing:.06em;text-transform:uppercase;'
+   +'color:#777;margin-left:4pt}'
+   +'.extra{break-inside:avoid;margin-top:10pt}'
+   +'.extra h3{font:7.5pt monospace;letter-spacing:.14em;text-transform:uppercase;'
+   +'color:#555;margin:0 0 4pt}'
+   +'.line{border-bottom:.5pt solid #999;height:15pt}';
+  var lines=''; for(var i=0;i<28;i++){ lines+='<div class="line"></div>'; }
+  return '<!doctype html><html><head><meta charset="utf-8"><title>Grocery list</title>'
+   +'<style>'+css+'</style></head><body>'
+   +'<h1>Your grocery list</h1><p class="sub">'+(count||'')+'</p>'
+   +(week?'<div class="week">'+week.innerHTML+'</div>':'')
+   +'<div class="cols">'+aisles.innerHTML+'</div>'
+   +'<div class="extra"><h3>Anything else</h3><div class="cols">'+lines+'</div></div>'
+   +'</body></html>';
+}
+
+function printGroceryList(){
+  var doc=buildPrintDoc();
+  if(!doc) return false;
+  var old=document.getElementById('printFrame');
+  if(old) old.parentNode.removeChild(old);
+  var f=document.createElement('iframe');
+  f.id='printFrame';
+  f.setAttribute('aria-hidden','true');
+  f.style.cssText='position:fixed;right:0;bottom:0;width:1px;height:1px;'
+   +'opacity:0;border:0;pointer-events:none';
+  document.body.appendChild(f);
+  var d=f.contentWindow.document;
+  d.open(); d.write(doc); d.close();
+  setTimeout(function(){
+    try{ f.contentWindow.focus(); f.contentWindow.print(); }
+    catch(e){ window.print(); }
+    setTimeout(function(){ if(f.parentNode) f.parentNode.removeChild(f); },2000);
+  },300);
+  return true;
+}
+
+var printBtn=document.getElementById('printPlan');
+if(printBtn){
+  printBtn.addEventListener('click',function(e){
+    if(printGroceryList()){ e.preventDefault(); e.stopImmediatePropagation(); }
+  },true);   /* capture, so this runs before the original window.print() */
+}
 if(window.matchMedia){
   var mq=window.matchMedia('print');
   var onMQ=function(m){ (m.matches?releaseScrollLock:restoreScrollLock)(); };
