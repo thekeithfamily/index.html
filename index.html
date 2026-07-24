@@ -591,7 +591,17 @@ ol.steps li b{font-family:var(--mono);font-size:14.2px;letter-spacing:.12em;text
   .unlock{padding:17px 18px;border-left-width:8px}
   .haveit{padding:48px 0 56px}
 }
-@media print{.haveit{display:none!important}}
+@media print{
+  .haveit{display:none!important}
+  /* The grocery list locks page scrolling while it's open (body{overflow:hidden}).
+     That lock was never released for printing: Chrome tolerates it, Safari on
+     iOS/iPadOS clips everything past the first screen and prints a blank page. */
+  html,body,body.planner-open{overflow:visible!important;height:auto!important;
+    max-height:none!important;position:static!important}
+  .planner{position:static!important;inset:auto!important;overflow:visible!important;
+    height:auto!important;max-height:none!important}
+  .planbody{overflow:visible!important;height:auto!important}
+}
 
 /* --- two pre-existing mobile issues, fixed --- */
 /* 1. the week tray needed ~454px of room, so "Build grocery list" ran off the
