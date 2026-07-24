@@ -1140,6 +1140,37 @@ function markGroceryList(){
 if(planbody && window.MutationObserver){
   new MutationObserver(markGroceryList).observe(planbody,{childList:true});
 }
+
+/* ---- make sure the grocery list actually prints ----
+   The overlay locks page scrolling with body{overflow:hidden}. Chrome's
+   interactive print dialog and Safari both honour that lock and clip everything
+   past the first screen, which prints a blank page. The print stylesheet now
+   releases it, but CSS alone has been unreliable across versions, so clear it
+   directly on beforeprint and restore afterwards. */
+var lockedEls=[document.documentElement, document.body];
+function releaseScrollLock(){
+  if(!document.body.classList.contains('planner-open')) return;
+  lockedEls.forEach(function(el){
+    el.style.setProperty('overflow','visible','important');
+    el.style.setProperty('height','auto','important');
+    el.style.setProperty('max-height','none','important');
+  });
+}
+function restoreScrollLock(){
+  lockedEls.forEach(function(el){
+    el.style.removeProperty('overflow');
+    el.style.removeProperty('height');
+    el.style.removeProperty('max-height');
+  });
+}
+window.addEventListener('beforeprint',releaseScrollLock);
+window.addEventListener('afterprint',restoreScrollLock);
+if(window.matchMedia){
+  var mq=window.matchMedia('print');
+  var onMQ=function(m){ (m.matches?releaseScrollLock:restoreScrollLock)(); };
+  if(mq.addEventListener) mq.addEventListener('change',onMQ);
+  else if(mq.addListener) mq.addListener(onMQ);
+}
 listEl.addEventListener('click',function(e){
   var b=e.target.closest('.wadd'); if(!b) return;
   var real=document.querySelector('.add[data-id="'+b.dataset.id+'"]');
