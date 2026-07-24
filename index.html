@@ -638,6 +638,9 @@ ol.steps li b{font-family:var(--mono);font-size:14.2px;letter-spacing:.12em;text
 }
 
 @media(max-width:359px){.coverstats{display:grid;grid-template-columns:1fr 1fr;gap:18px 14px}}
+.aisle li.own:not(.ownassumed) .nm a,.aisle li.own:not(.ownassumed) .q{text-decoration:line-through}
+.aisle li.ownassumed .nm a{color:var(--ink)}
+.aisle li.ownassumed .q{color:var(--ink-soft);opacity:1}
 </style></head><body><header class="cover"><div class="wrap"><div>
 <p class="eyebrow">The Keith household · Dinner, solved</p>
 <h1>Favorite <em>Recipes</em></h1>
@@ -1146,10 +1149,12 @@ genBtn.addEventListener('click',function(){
 var planbody=document.getElementById('planbody');
 function markGroceryList(){
   if(!planbody) return;
-  var rows=planbody.querySelectorAll('.aisle li[data-k]'), owned=0;
+  var rows=planbody.querySelectorAll('.aisle li[data-k]'), owned=0, assumedCount=0;
   rows.forEach(function(li){
     var canon=P.r2c[li.dataset.k], own=!!(canon && have[canon]);
+    var assumed=!!(own && I[canon] && I[canon].a);
     li.classList.toggle('own',own);
+    li.classList.toggle('ownassumed',assumed);
     var badge=li.querySelector('.ownbadge');
     if(own && !badge){
       var s=document.createElement('span');
@@ -1157,7 +1162,7 @@ function markGroceryList(){
       s.textContent=(I[canon] && I[canon].a) ? 'staple' : 'you have it';
       var nm=li.querySelector('.nm'); (nm||li).appendChild(s);
     } else if(!own && badge){ badge.remove(); }
-    if(own) owned++;
+    if(own){ owned++; if(assumed) assumedCount++; }
   });
   var aisles=planbody.querySelector('.aisles');
   if(!aisles || !rows.length) return;
@@ -1166,9 +1171,14 @@ function markGroceryList(){
   var note=planbody.querySelector('.havenote');
   if(!note){ note=document.createElement('p'); note.className='havenote';
              aisles.parentNode.insertBefore(note,aisles); }
+  var confirmed=owned-assumedCount;
   note.textContent=owned
-    ? owned+' of '+rows.length+' are already in your kitchen. Marked below, but left on the '
-      +'list so you can check as you go.'
+    ? (confirmed
+        ? confirmed+' of '+rows.length+' are ones you told the meal planner you have. Crossed '
+          +'off below, but left on the list so you can check as you go.'
+        : 'Nothing here is ticked as already in your kitchen yet.')
+      +(assumedCount? ' Another '+assumedCount+' are pantry staples you usually keep, labelled '
+        +'but not crossed off, since nobody has checked those.' : '')
     : 'Nothing on this list is marked as already in your kitchen yet.';
 }
 if(planbody && window.MutationObserver){
