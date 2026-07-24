@@ -500,8 +500,10 @@ ol.steps li b{font-family:var(--mono);font-size:14.2px;letter-spacing:.12em;text
 .havenote{font-family:var(--mono);font-size:13px;color:var(--grass);border:2px solid var(--grass);
   border-radius:12px;padding:11px 15px;margin:0 0 18px;background:rgba(10,90,100,.05)}
 @media print{
+  /* the note is a screen aid; keeping it off paper leaves the tuned
+     3-column grocery layout exactly as it was */
+  .havenote{display:none!important}
   .ownbadge{border:0;padding:0;margin-left:6px;color:#000}
-  .havenote{border:1px solid #999;color:#000;background:none}
 }
 @media (max-width:560px){
   .genbtn{width:100%;padding:22px 20px;font-size:16.4px;letter-spacing:.12em}
@@ -1131,9 +1133,11 @@ function markGroceryList(){
   });
   var aisles=planbody.querySelector('.aisles');
   if(!aisles || !rows.length) return;
-  var note=aisles.querySelector('.havenote');
+  /* deliberately a SIBLING before .aisles, never inside it -- .aisles is the
+     tuned 3-column print flow and a bordered block inside it upsets paged layout */
+  var note=planbody.querySelector('.havenote');
   if(!note){ note=document.createElement('p'); note.className='havenote';
-             aisles.insertBefore(note,aisles.firstChild); }
+             aisles.parentNode.insertBefore(note,aisles); }
   note.textContent=owned
     ? owned+' of '+rows.length+' are already in your kitchen \u2014 marked below, but left on the '
       +'list so you can check as you go.'
@@ -1157,6 +1161,15 @@ function releaseScrollLock(){
     el.style.setProperty('height','auto','important');
     el.style.setProperty('max-height','none','important');
   });
+  var pl=document.getElementById('planner');
+  if(pl){
+    pl.scrollTop=0;                      /* Safari prints fixed overlays from the top */
+    ['position:static','inset:auto','top:auto','left:auto','right:auto','bottom:auto',
+     'overflow:visible','height:auto','max-height:none'].forEach(function(d){
+      var i=d.indexOf(':'); pl.style.setProperty(d.slice(0,i),d.slice(i+1),'important');
+    });
+    void pl.offsetHeight;                /* force reflow before the dialog snapshots */
+  }
 }
 function restoreScrollLock(){
   lockedEls.forEach(function(el){
@@ -1164,6 +1177,9 @@ function restoreScrollLock(){
     el.style.removeProperty('height');
     el.style.removeProperty('max-height');
   });
+  var pl=document.getElementById('planner');
+  if(pl){ ['position','inset','top','left','right','bottom','overflow','height','max-height']
+    .forEach(function(pr){ pl.style.removeProperty(pr); }); }
 }
 window.addEventListener('beforeprint',releaseScrollLock);
 window.addEventListener('afterprint',restoreScrollLock);
